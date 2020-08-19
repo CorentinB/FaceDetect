@@ -1,4 +1,4 @@
-package face
+package main
 
 import (
 	"fmt"
@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"strconv"
 
 	pigo "github.com/esimov/pigo/core"
 )
@@ -84,7 +83,7 @@ func Detect(img draw.Image, fileName string, outputDir string) int {
 			log.Fatalf("Error cropping image: %s", err)
 		}
 
-		writeImage(cropped, path.Join(outputDir, fileName+"_"+strconv.Itoa(i)+".png"))
+		writeImage(cropped, path.Join(outputDir, fileName+"_face_"+padFileNameWithZero(uint32(i))+".png"))
 
 		facesCount++
 	}

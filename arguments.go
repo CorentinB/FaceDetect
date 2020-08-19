@@ -49,9 +49,6 @@ func argumentParsing(args []string) {
 	inputDir, _ := filepath.Abs(*input)
 	outputDir, _ := filepath.Abs(*output)
 
-	// Create output dir
-	os.MkdirAll(outputDir, 0755)
-
 	// Finally save the collected flags
 	arguments.Input = inputDir
 	arguments.Output = outputDir

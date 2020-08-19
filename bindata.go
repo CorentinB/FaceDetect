@@ -1,7 +1,7 @@
 // Code generated for package main by go-bindata DO NOT EDIT. (@generated)
 // sources:
 // static/facefinder.bin
-package face
+package main
 
 import (
 	"bytes"

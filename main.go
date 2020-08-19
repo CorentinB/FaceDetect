@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"time"
 
-	"github.com/CorentinB/FaceDetect/face"
 	pigo "github.com/esimov/pigo/core"
 	"github.com/remeh/sizedwaitgroup"
 
@@ -68,7 +68,7 @@ func processFile(path, output string, worker *sizedwaitgroup.SizedWaitGroup) {
 		return
 	}
 
-	facesCount := face.Detect(src, fileNameWithoutExtension(filepath.Base(path)), arguments.Output)
+	facesCount := Detect(src, fileNameWithoutExtension(filepath.Base(path)), output)
 	logSuccess(color.Green(strconv.Itoa(facesCount)) + color.Yellow(" faces found in "+filepath.Base(path)))
 }
 
@@ -77,15 +77,25 @@ func main() {
 	argumentParsing(os.Args)
 
 	var worker = sizedwaitgroup.New(arguments.Concurrency)
+	var outSubDirCount uint32 = 1
 
 	// Get a list of all files
 	files := listFiles(arguments.Input, arguments.Recursive)
 	logSuccess(color.Green(strconv.Itoa(len(files))) + color.Yellow(" pictures ready for processing"))
 
 	// Go through all files and detect if there are faces
+	outputDir := path.Join(arguments.Output, padNumberWithZero(outSubDirCount))
+	os.MkdirAll(outputDir, 0755)
 	for _, path := range files {
 		worker.Add()
-		go processFile(path, arguments.Output, &worker)
+		go processFile(path, outputDir, &worker)
+
+		// If more than 10k files in the dir, change output dir
+		files, _ := ioutil.ReadDir(outputDir)
+		if len(files) >= 10000 {
+			outSubDirCount++
+			outputDir = filepath.Join(arguments.Output, padNumberWithZero(outSubDirCount))
+		}
 	}
 
 	worker.Wait()
